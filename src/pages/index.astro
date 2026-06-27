@@ -1,11 +1,41 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
+import { SiteHeader } from "@/components/site/site-header";
+import { HeroContent } from "@/components/site/hero-content";
+import { DitherImage } from "@/components/site/dither-image";
 ---
 
 <Layout>
-	<Welcome />
+	<div class="relative lg:grid lg:grid-cols-2">
+		<!-- Mobile: dither fills the screen as background + blue tint for text contrast -->
+		<div
+			class="absolute inset-0 bg-primary lg:hidden"
+			aria-hidden="true"
+		>
+			<div class="absolute inset-0">
+				<DitherImage client:only="react" />
+			</div>
+			<!-- Blue scrim keeps white text/boat legible over the dither -->
+			<div class="absolute inset-0 bg-primary/50"></div>
+		</div>
+
+		<!-- Hero content — overlays the dither on mobile, sits on white on desktop -->
+		<section
+			class="relative z-[1] flex min-h-[80vh] flex-col items-center justify-center pt-28 px-6 pb-16 text-center lg:min-h-[70vh] lg:items-start lg:justify-center lg:pt-24 lg:px-10 lg:py-0 lg:text-left"
+		>
+			<HeroContent />
+		</section>
+
+		<!-- Desktop: dither as the right column -->
+		<section
+			class="relative hidden overflow-hidden bg-primary lg:block lg:min-h-[70vh]"
+		>
+			<DitherImage client:only="react" />
+		</section>
+
+		<!-- Header overlays the full width of the split -->
+		<div class="absolute inset-x-0 top-0 z-[60]">
+			<SiteHeader client:load />
+		</div>
+	</div>
 </Layout>
