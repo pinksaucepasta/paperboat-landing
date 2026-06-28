@@ -71,13 +71,6 @@ const PRODUCTS = [
   },
 ] as const;
 
-const PRICING_ITEMS = PRODUCTS.map(({ label, description, icon }) => ({
-  label,
-  href: `#pricing-${label.toLowerCase().replace(/\s+/g, "-")}`,
-  description,
-  icon,
-}));
-
 function MenuLink({
   href,
   label,
@@ -188,11 +181,11 @@ function MobileNav({
 
         <nav className="flex flex-1 flex-col gap-5 overflow-y-auto px-6 py-6">
           <MobileSection label="Products" items={PRODUCTS} />
-          <MobileSection label="Pricing" items={PRICING_ITEMS} />
           <MobileSection
             label="More"
             items={[
               { label: "Docs", href: "#docs" },
+              { label: "Pricing", href: "#pricing" },
               { label: "Changelog", href: "#changelog" },
             ]}
           />
@@ -222,7 +215,7 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "flex w-full items-center justify-between gap-6 px-6 py-4 transition-colors duration-300 lg:px-10 lg:py-5",
+        "flex w-full items-center justify-between gap-6 px-6 py-3 transition-colors duration-300 lg:px-10 lg:py-4",
         scrolled &&
           !menuOpen &&
           "border-b border-border bg-background shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-background"
@@ -239,9 +232,9 @@ export function SiteHeader() {
         </a>
 
         <NavigationMenu className="hidden lg:flex">
-          <NavigationMenuList>
+          <NavigationMenuList className="gap-1">
             <NavigationMenuItem>
-              <NavigationMenuTrigger className={cn("text-nav font-medium", navText)}>
+              <NavigationMenuTrigger className={cn("text-nav", navText)}>
                 Products
               </NavigationMenuTrigger>
               <NavigationMenuContent>
@@ -258,31 +251,25 @@ export function SiteHeader() {
             <NavigationMenuItem>
               <NavigationMenuLink
                 render={<a href="#docs" />}
-                className={cn("text-nav font-medium", navText)}
+                className={cn("text-nav", navText)}
               >
                 Docs
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <NavigationMenuTrigger className={cn("text-nav font-medium", navText)}>
+              <NavigationMenuLink
+                render={<a href="#pricing" />}
+                className={cn("text-nav", navText)}
+              >
                 Pricing
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-72 gap-1">
-                  {PRICING_ITEMS.map((item) => (
-                    <li key={item.label}>
-                      <MenuLink {...item} />
-                    </li>
-                  ))}
-                </ul>
-              </NavigationMenuContent>
+              </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
               <NavigationMenuLink
                 render={<a href="#changelog" />}
-                className={cn("text-nav font-medium", navText)}
+                className={cn("text-nav", navText)}
               >
                 Changelog
               </NavigationMenuLink>
@@ -299,7 +286,7 @@ export function SiteHeader() {
           className={cn(
             scrolled
               ? "bg-primary text-primary-foreground hover:bg-primary/90"
-              : "bg-primary-foreground/15 text-primary-foreground hover:bg-primary-foreground/25 lg:bg-primary-foreground lg:text-primary lg:hover:bg-primary-foreground/90"
+              : "hover:bg-primary-foreground/25 bg-primary-foreground text-primary hover:bg-primary-foreground/90"
           )}
         >
           Sign in

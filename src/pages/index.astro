@@ -4,6 +4,8 @@ import { SiteHeader } from "@/components/site/site-header";
 import { HeroContent } from "@/components/site/hero-content";
 import { DitherImage } from "@/components/site/dither-image";
 import { AgentLogos } from "@/components/site/agent-logos";
+import { SiteFooter } from "@/components/site/site-footer";
+import { SectionIntro } from "@/components/site/section-intro";
 ---
 
 <Layout>
@@ -24,7 +26,7 @@ import { AgentLogos } from "@/components/site/agent-logos";
 		<section
 			class="relative z-[1] flex min-h-[80vh] flex-col items-center justify-center pt-28 px-6 pb-16 text-center lg:min-h-[70vh] lg:items-start lg:justify-center lg:pt-24 lg:px-10 lg:py-0 lg:text-left"
 		>
-			<HeroContent />
+			<HeroContent client:load />
 		</section>
 
 		<!-- Desktop: dither as the right column -->
@@ -42,14 +44,15 @@ import { AgentLogos } from "@/components/site/agent-logos";
 
 	<!-- Agent logo carousel below the hero -->
 	<section class="border-t border-border bg-background pt-10 pb-16 lg:pt-12 lg:pb-20">
-		<div class="mx-auto mb-12 max-w-2xl px-6 text-center lg:mb-14">
-			<h2 class="text-h2 text-balance text-foreground">
-				Bring your own agents
-			</h2>
-			<p class="text-lead text-pretty mt-4 text-muted-foreground">
-				Run Claude Code, Codex, OpenCode, Cursor, or your own — on credentials you already pay for. No token resale, no lock-in.
-			</p>
+		<div class="mb-12 px-6 lg:mb-14">
+			<SectionIntro
+				client:visible
+				title="Bring your own agents"
+				description="Run Claude Code, Codex, OpenCode, Cursor, or your own — on credentials you already pay for. No token resale, no lock-in."
+			/>
 		</div>
 		<AgentLogos client:visible />
 	</section>
+
+	<SiteFooter client:visible />
 </Layout>

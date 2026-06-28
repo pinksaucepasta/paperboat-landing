@@ -163,8 +163,13 @@
 }
 
 /* Type roles — the only approved way to render each role (DESIGN.md §3.3).
-   Reference these by name instead of repeating the size/font/weight cluster. */
-@layer components {
+   Reference these by name instead of repeating the size/font/weight cluster.
+
+   Authored in @layer utilities (not components) on purpose: shadcn primitives
+   ship base size utilities like `text-xs`, and the utilities layer beats the
+   components layer. Living here — after Tailwind's own utilities in source order —
+   lets a role class win over those primitive defaults when applied last (DESIGN.md §11). */
+@layer utilities {
   .text-h1 {
     @apply font-heading font-bold text-[clamp(2.5rem,1.62rem+3.91vw,4.75rem)] leading-[1.05] tracking-[-0.03em];
   }

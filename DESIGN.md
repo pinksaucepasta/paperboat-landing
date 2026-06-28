@@ -334,7 +334,14 @@ The dither artwork is the **only** place fixed white is allowed instead of seman
 
 Calm, fast, purposeful. Motion clarifies a change — it's never decoration. Most interactions
 should feel **instant**; when an element genuinely reveals or moves, keep it short and
-slightly physical. (`tw-animate-css` is available.)
+slightly physical.
+
+**Two tiers, two tools:**
+- **8.1 Micro-interactions** (hover, focus, state) → CSS transitions / `tw-animate-css`.
+- **8.2 Entrance & scroll reveals** (content arriving on screen) → **`motion`** (Framer
+  Motion, imported from `motion/react`), used in React islands only.
+
+### 8.1 Micro-interactions
 
 - **Durations:** ~150ms state changes (hover, focus) · ~200ms popovers/tooltips ·
   ~300ms overlays/modals. When in doubt, faster.
@@ -351,6 +358,66 @@ slightly physical. (`tw-animate-css` is available.)
   default already does this). Never remove an outline without a visible replacement.
 - **Respect `prefers-reduced-motion`:** drop all non-essential motion (including the dither
   animation where feasible) behind the query.
+
+### 8.2 Entrance & scroll reveals (`motion`)
+
+When content **arrives** — a section scrolling into view, a footer, a list of cards — reveal
+it with one shared vocabulary so every section breathes the same way. Canonical
+implementation: [site-footer.tsx](components/site/site-footer.tsx).
+
+**The fixed reveal tokens** (don't invent per-component values):
+
+| Token | Value | Meaning |
+|---|---|---|
+| Distance | `y: 16` → `0` | How far a fading element travels up. Small — a settle, not a fly-in. |
+| Duration | `0.6s` | One reveal. |
+| Easing | `[0.16, 1, 0.3, 1]` | Expo-out — fast then gentle. The JS twin of `--ease-physical`, minus the overshoot. |
+| Stagger | `0.06s` | Delay between siblings in a group. |
+| Lead-in delay | `0.05s` | Before the first child starts. |
+
+**The four sanctioned patterns** — reach for these, don't author new ones:
+
+1. **Fade-up** (default for any block): `opacity 0→1`, `y 16→0`. This is the atom.
+2. **Staggered group** (link columns, card grids, feature lists): a parent
+   `staggerChildren: 0.06` over fade-up children. Items cascade in document order.
+3. **Letter rise** (oversized display wordmarks only — e.g. the footer mark): each glyph in
+   an `overflow-hidden` clip, sliding `y: 110% → 0%`, `stagger 0.05`. Reserved for one big
+   statement per page; never for body or headings.
+4. **Ambient drift** (the hero dither, looping rAF): continuous, sub-pixel, non-repeating.
+   Not an entrance — background life only.
+5. **On-load hero entrance** (hero text stack only): the staggered group, but triggered on
+   mount (`initial="hidden"` `animate="show"`, not `whileInView`) and quicker — `y: 12`,
+   `0.5s`, `stagger 0.07`. Canonical: [hero-content.tsx](components/site/hero-content.tsx).
+   The hero needs `client:load` for this to run before paint.
+
+**Rules of the road:**
+- **Trigger on view, once:** `whileInView` + `viewport={{ once: true, amount: 0.25 }}`. Reveals
+  fire as the user reaches a section and **never replay** — re-animating on every scroll is noise.
+- **Transform/opacity only** — same GPU-cheap contract as §8.1. Never reveal by animating layout.
+- **One reveal per section, not per element.** A footer fades its content as a group; it does
+  not animate every link individually outside a stagger. Restraint reads as quality.
+- **`prefers-reduced-motion`:** `motion` honors it when you gate variants, but verify — reduced
+  users should see the final state instantly (`opacity: 1`, no transform), never a blank slab.
+- **Hero is the one on-load exception** — don't *scroll-reveal* above-the-fold content (nothing
+  scrolls into it). But a single **on-load entrance** is allowed and encouraged: it must be
+  faster than a scroll reveal (`y: 12`, `0.5s`, `stagger 0.07`, `initial`/`animate` on mount —
+  not `whileInView`) so the page reads as *arriving*, never as *withholding*. One per page, hero
+  only. See pattern 5. Everything else below the fold uses the scroll reveals above.
+
+```tsx
+// The shared atoms — copy these, don't re-derive.
+const EASE = [0.16, 1, 0.3, 1] as const;
+const container = { hidden: {}, show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } } };
+const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } } };
+
+<motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.25 }}>
+  <motion.div variants={item}>…</motion.div>
+  <motion.div variants={item}>…</motion.div>
+</motion.div>
+```
+
+> When hardening (§11), promote `EASE` / `container` / `item` to a shared
+> `components/site/motion.ts` so every island imports the same constants instead of redefining them.
 
 ---
 
@@ -379,26 +446,32 @@ slightly physical. (`tw-animate-css` is available.)
 | `font-heading` / `font-sans` / `font-mono` by role | Mixing fonts ad hoc |
 | `max-w-prose` / `max-w-2xl` on text | Full-viewport-width paragraphs |
 | `border-border` + soft layered shadows | `shadow-xl`, glows, single hard shadow |
+| `whileInView` + `once`, the §8.2 reveal tokens | Per-component fade values; reveals that replay on scroll |
 | `px-6 lg:px-10` gutters, fluid section padding | Per-section custom padding |
 
 ---
 
-## 11. Hardening (future — currently doc-only)
+## 11. Hardening
 
-This file is the spec; nothing enforces it yet. When you want the system enforced in code
-rather than by convention, the path is:
+Progress on enforcing the spec in code rather than by convention:
 
-1. **Promote type roles to tokens.** Add `--text-h1`, `--text-h2`, … (with the `clamp()`
-   values + paired `line-height`/`letter-spacing`) to `@theme` in
-   [`src/styles/global.css`](src/styles/global.css); Tailwind v4 then generates `text-h1`
-   etc. Or define `.text-h1 { … }` component utilities. Either way components stop repeating
-   the cluster from §3.4.
-2. **Add the shadow + easing tokens** from §6 and §8 to `@theme` (`--shadow-float`,
-   `--ease-physical`).
-3. **Refactor the existing components** ([hero-content.tsx](components/site/hero-content.tsx),
-   [site-header.tsx](components/site/site-header.tsx)) off their arbitrary values onto the
-   roles — they currently predate this system.
+1. ✅ **Type roles render reliably (done).** The roles (`.text-h1` … `.text-nav`) are authored
+   as `@apply` clusters in **`@layer utilities`** (not components) so they beat the base
+   `text-xs`/`text-sm` that shadcn primitives ship — utilities outrank components in the
+   cascade. **And** they're registered with `tailwind-merge` in [`lib/utils.ts`](lib/utils.ts)
+   (`extendTailwindMerge` → `font-size` group) so `cn()` no longer mistakes `text-nav` for a
+   `text-{color}` and drops it when a color class is also present. Both were live bugs: the nav
+   links silently rendered Geist 12px instead of mono 14px. Add any new role to **both** the
+   `@layer utilities` block and the `ROLE_CLASSES` list.
+   - *Still optional:* promoting the clusters to `@theme --text-*` tokens (Tailwind v4 reads
+     them as generated utilities) would also work, but splits font-family off the size token —
+     the `@apply` cluster keeps the whole role in one class, so we kept it.
+2. ✅ **Shared motion (done).** The §8.2 reveal variants live in
+   [`components/site/motion.ts`](components/site/motion.ts); every island imports them.
+   *Remaining:* the `--shadow-float` / `--ease-physical` tokens from §6/§8 are defined in
+   `@theme` but components don't all reference them yet.
+3. **Refactor remaining arbitrary values.** [hero-content.tsx](components/site/hero-content.tsx)
+   and [site-header.tsx](components/site/site-header.tsx) still carry some pre-system clusters;
+   move them onto the roles where a role exists.
 4. *(Optional)* an ESLint/Stylelint rule banning arbitrary `text-[…]`/`gap-[…]` so drift
    can't creep back in.
-
-Do these only when you're ready — they're deliberately out of scope for the doc-only pass.
