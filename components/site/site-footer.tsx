@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -65,26 +64,16 @@ const SOCIALS = [
  * Live uptime read-out — keeps the footer feeling like a running system
  * rather than a static slab.
  */
-function UptimeClock() {
-  const [t, setT] = useState(0);
-  useEffect(() => {
-    const start = performance.now();
-    const id = setInterval(() => setT(performance.now() - start), 1000);
-    return () => clearInterval(id);
-  }, []);
+function StatusIndicator() {
 
-  const s = Math.floor(t / 1000);
-  const hh = String(Math.floor(s / 3600)).padStart(2, "0");
-  const mm = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
-  const ss = String(s % 60).padStart(2, "0");
 
   return (
-    <span className="text-eyebrow inline-flex items-center gap-2 text-primary-foreground/60">
-      <span className="relative flex size-2">
+    <span className="text-eyebrow inline-flex items-center gap-2 leading-none text-primary-foreground/60">
+      <span className="relative flex size-2 shrink-0 -translate-y-[0.08em]">
         <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400/70" />
         <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
       </span>
-      All systems afloat · {hh}:{mm}:{ss}
+      All systems afloat
     </span>
   );
 }
@@ -165,9 +154,9 @@ export function SiteFooter() {
           variants={item}
           className="mt-14 flex flex-col gap-3 border-t border-primary-foreground/15 py-6 sm:flex-row sm:items-center sm:justify-between"
         >
-          <UptimeClock />
+          <StatusIndicator />
           <div className="text-caption flex flex-wrap items-center gap-x-5 gap-y-1 text-primary-foreground/55">
-            <span>© {year} Paperboat Labs</span>
+            <span>© {year} Paperboat</span>
             <a href="#privacy" className="hover:text-primary-foreground/90">
               Privacy
             </a>
