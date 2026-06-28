@@ -1,4 +1,22 @@
+import { useEffect, useState } from "react";
 import { LogoLoop } from "@/components/LogoLoop";
+
+// Gap scales with viewport: tight on phones so the row stays dense, wide on
+// large screens so one full set of logos spans the width and no icon repeats
+// within a single frame.
+function useResponsiveGap() {
+  const [gap, setGap] = useState(64);
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      setGap(w >= 1280 ? 160 : w >= 768 ? 96 : 48);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  return gap;
+}
 
 // Real agent logos. Add more entries below as their SVGs become available.
 // Each viewBox is tight-cropped to the glyph and rendered at a constant height
@@ -138,13 +156,14 @@ const logos = [
 ];
 
 export function AgentLogos() {
+  const gap = useResponsiveGap();
   return (
     <LogoLoop
       logos={logos}
       speed={60}
       direction="left"
       logoHeight={44}
-      gap={64}
+      gap={gap}
       pauseOnHover
       fadeOut
       fadeOutColor="var(--background)"
