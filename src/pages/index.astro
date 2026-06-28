@@ -6,6 +6,12 @@ import { DitherImage } from "@/components/site/dither-image";
 import { AgentLogos } from "@/components/site/agent-logos";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SectionIntro } from "@/components/site/section-intro";
+import { TerminalShowcase } from "@/components/site/terminal-showcase";
+import { FeatureTriad } from "@/components/site/feature-triad";
+import { HowItWorks } from "@/components/site/how-it-works";
+import { UseCases } from "@/components/site/use-cases";
+import { StatStrip } from "@/components/site/stat-strip";
+import { CtaBand } from "@/components/site/cta-band";
 ---
 
 <Layout>
@@ -42,8 +48,68 @@ import { SectionIntro } from "@/components/site/section-intro";
 		</div>
 	</div>
 
-	<!-- Agent logo carousel below the hero -->
-	<section class="border-t border-border bg-background pt-10 pb-16 lg:pt-12 lg:pb-20">
+	<!-- Show the product: a tabbed terminal of real sessions -->
+	<section id="cloud-agents" class="border-t border-border bg-background py-[clamp(4rem,7vw,8rem)]">
+		<div class="mx-auto w-full max-w-7xl px-6 lg:px-10">
+			<div class="mb-12 lg:mb-16">
+				<SectionIntro
+					client:visible
+					eyebrow="See it run"
+					title="From command to compute in under a second"
+					description="Launch an agent, resume a session, or open a tunnel — the same calm primitives, whatever the workflow."
+				/>
+			</div>
+			<TerminalShowcase client:visible />
+		</div>
+	</section>
+
+	<!-- Feature triad: the hero's three promises, expanded -->
+	<section id="features" class="border-t border-border bg-background py-[clamp(4rem,7vw,8rem)]">
+		<div class="mx-auto w-full max-w-7xl px-6 lg:px-10">
+			<div class="mb-12 lg:mb-16">
+				<SectionIntro
+					client:visible
+					eyebrow="The primitives"
+					title="Everything an agent needs to run for real"
+					description="Isolated compute, durable storage, and extensible tunnels — composable building blocks, not a black box."
+				/>
+			</div>
+			<FeatureTriad client:visible />
+		</div>
+	</section>
+
+	<!-- How it works: the BYOC mechanism, three steps -->
+	<section id="byoc" class="border-t border-border bg-muted/30 py-[clamp(4rem,7vw,8rem)]">
+		<div class="mx-auto w-full max-w-7xl px-6 lg:px-10">
+			<div class="mb-12 lg:mb-16">
+				<SectionIntro
+					client:visible
+					eyebrow="Bring your own compute"
+					title="Your infrastructure, your credentials"
+					description="Paperboat orchestrates the agents. The compute and the spend stay yours — no token resale, no markup, no lock-in."
+				/>
+			</div>
+			<HowItWorks client:visible />
+		</div>
+	</section>
+
+	<!-- Use cases: self-identify by workflow -->
+	<section class="border-t border-border bg-background py-[clamp(4rem,7vw,8rem)]">
+		<div class="mx-auto w-full max-w-7xl px-6 lg:px-10">
+			<div class="mb-12 lg:mb-16">
+				<SectionIntro
+					client:visible
+					eyebrow="Built for"
+					title="Work that outlasts a single terminal"
+					description="Durable, isolated workspaces make the long-running and the untrusted equally safe to run."
+				/>
+			</div>
+			<UseCases client:visible />
+		</div>
+	</section>
+
+	<!-- Agent logo carousel + social-proof stats -->
+	<section class="border-t border-border bg-background pt-[clamp(4rem,7vw,8rem)] pb-16 lg:pb-20">
 		<div class="mb-12 px-6 lg:mb-14">
 			<SectionIntro
 				client:visible
@@ -51,7 +117,17 @@ import { SectionIntro } from "@/components/site/section-intro";
 				description="Run Claude Code, Codex, OpenCode, Cursor, or your own — on credentials you already pay for. No token resale, no lock-in."
 			/>
 		</div>
+		<div class="mx-auto mb-14 w-full max-w-7xl px-6 lg:mb-16 lg:px-10">
+			<StatStrip client:visible />
+		</div>
 		<AgentLogos client:visible />
+	</section>
+
+	<!-- Closing call to action -->
+	<section class="border-t border-border bg-background py-[clamp(4rem,7vw,8rem)]">
+		<div class="mx-auto w-full max-w-7xl px-6 lg:px-10">
+			<CtaBand client:visible />
+		</div>
 	</section>
 
 	<SiteFooter client:visible />
